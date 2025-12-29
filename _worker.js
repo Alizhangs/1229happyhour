@@ -467,7 +467,7 @@ function utf8ToBase64(str) {
 async function subHtml(request) {
 	const url = new URL(request.url);
 
-	// 魔法棒光标 (保持不变)
+	// 魔法棒光标 (32x32 SVG)
 	const magicWandCursor = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIOaYn+aYnyAtLT4KICA8cGF0aCBkPSJNOCAzLjVMNi41IDdMMyA4LjVMNi41IDEwTCA4IDEzLjVMOS41IDEwTDEzIDguNUw5LjUgN0w4IDMuNVoiIGZpbGw9IiNmZmUaaDciIHN0cm9rZT0iIzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8IS0tIOaJm+afhSAtLT4KICA8cGF0aCBkPSJNMTAuNSAxMC41TDIyIDIyIiBzdHJva2U9IiNhMmQyZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHBhdGggZD0iTTEwLjUgMTAuNUwyMiAyMiIgc3Ryb2tlPSIjMzMzIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWRhc2hhcnJheT0iMiA0Ii8+Cjwvc3ZnPg==`;
 
 	const HTML = `
@@ -482,17 +482,17 @@ async function subHtml(request) {
 					:root {
 						--primary-color: #4361ee;
 						--hover-color: #3b4fd3;
+						/* 默认的渐变背景，作为没有图片时的备选 */
 						--bg-gradient: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
 						--text-color: #333;
 						
-						/* --- 卡片风格变量 (Light Mode) - 改为清爽洁白风格 --- */
-						--card-bg: #ffffff; /* 纯白背景，不再半透明 */
-						--card-border: transparent; /* 移除明显的玻璃边框 */
-						/* 更柔和、明显的投影，营造悬浮卡片感 */
+						/* --- 卡片风格变量 (Light Mode) --- */
+						--card-bg: #ffffff;
+						--card-border: transparent;
 						--card-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0,0,0,0.05);
 						
-						--input-bg: #f5f7fa; /* 输入框使用实色浅灰，增加层次感 */
-						--input-border: transparent; /* 输入框无边框风格 */
+						--input-bg: #f5f7fa;
+						--input-border: transparent;
 						
 						--button-bg: #4361ee;
 						--button-text: white;
@@ -506,7 +506,7 @@ async function subHtml(request) {
 						--text-color: #f0f0f0;
 						
 						/* --- 卡片风格变量 (Dark Mode) --- */
-						--card-bg: #2d2d2d; /* 深色实体卡片背景 */
+						--card-bg: #2d2d2d;
 						--card-border: #3d3d3d;
 						--card-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
 						
@@ -526,8 +526,10 @@ async function subHtml(request) {
 					}
 					
 					body {
-						${网站背景}
+						/* 修复顺序：先设置默认渐变，再用网站背景覆盖它 */
 						background-image: var(--bg-gradient);
+						${网站背景}
+						
 						background-size: cover;
 						background-position: center;
 						background-attachment: fixed;
@@ -542,7 +544,7 @@ async function subHtml(request) {
 						overflow-x: hidden;
 					}
 
-					/* --- 连续彩虹拖尾样式 (保持不变) --- */
+					/* --- 连续彩虹拖尾样式 --- */
 					.rainbow-trail {
 						position: absolute;
 						width: 10px;
@@ -561,17 +563,13 @@ async function subHtml(request) {
 						100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
 					}
 					
-					/* --- 容器样式 (改为清爽卡片风格，大小比例不变) --- */
+					/* --- 容器样式 (清爽卡片风格) --- */
 					.container {
 						position: relative;
-						/* 使用新的卡片变量 */
 						background: var(--card-bg);
 						border: 1px solid var(--card-border);
 						box-shadow: var(--card-shadow);
 						
-						/* 重要：移除了 backdrop-filter (毛玻璃模糊效果) */
-						
-						/* 保持原来的大小和比例设置不变 */
 						max-width: 600px; 
 						width: 90%;
 						padding: 2rem;
@@ -583,7 +581,6 @@ async function subHtml(request) {
 
 					.container:hover {
 						transform: translateY(-2px);
-						/* 悬浮时加深阴影 */
 						box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0,0,0,0.08);
 					}
 					
@@ -607,12 +604,11 @@ async function subHtml(request) {
 						font-size: 0.95rem;
 					}
 					
-					/* 输入框风格调整为配合卡片 */
 					input {
 						width: 100%;
 						padding: 12px 15px;
 						background: var(--input-bg);
-						border: 1px solid var(--input-border); /* 无边框或微弱边框 */
+						border: 1px solid var(--input-border);
 						color: var(--text-color);
 						border-radius: 10px;
 						font-size: 1rem;
@@ -626,7 +622,7 @@ async function subHtml(request) {
 
 					input:focus {
 						outline: none;
-						background: var(--card-bg); /* 聚焦时背景变亮 */
+						background: var(--card-bg);
 						border-color: var(--primary-color);
 						box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
 					}
@@ -688,7 +684,7 @@ async function subHtml(request) {
 						width: 40px;
 						height: 40px;
 						border-radius: 50%;
-						background: var(--card-bg); /* 使用卡片背景 */
+						background: var(--card-bg);
 						border: 1px solid var(--card-border);
 						box-shadow: var(--card-shadow);
 						display: flex;
@@ -726,7 +722,6 @@ async function subHtml(request) {
 						align-items: center;
 						margin-top: 20px;
 						padding: 10px;
-						/* 二维码背景也要适配深色模式 */
 						background: var(--card-bg);
 						border-radius: 10px;
 						display: none;
@@ -811,7 +806,7 @@ async function subHtml(request) {
 				</div>
 	
 				<script>
-					// 1. 连续彩虹拖尾特效 (保持不变)
+					// 1. 连续彩虹拖尾特效
 					let hue = 0;
 					let lastX = 0;
 					let lastY = 0;
@@ -1506,4 +1501,5 @@ export default {
 		}
 	}
 };
+
 
