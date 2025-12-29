@@ -482,11 +482,11 @@ async function subHtml(request) {
 					:root {
 						--primary-color: #4361ee;
 						--hover-color: #3b4fd3;
-						/* 默认的渐变背景，作为没有图片时的备选 */
+						/* 默认渐变背景 */
 						--bg-gradient: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
 						--text-color: #333;
 						
-						/* --- 卡片风格变量 (Light Mode) --- */
+						/* Light Mode 变量 */
 						--card-bg: #ffffff;
 						--card-border: transparent;
 						--card-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0,0,0,0.05);
@@ -505,7 +505,7 @@ async function subHtml(request) {
 						--bg-gradient: linear-gradient(120deg, #2a2a2a 0%, #333333 100%);
 						--text-color: #f0f0f0;
 						
-						/* --- 卡片风格变量 (Dark Mode) --- */
+						/* Dark Mode 变量 */
 						--card-bg: #2d2d2d;
 						--card-border: #3d3d3d;
 						--card-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
@@ -526,7 +526,9 @@ async function subHtml(request) {
 					}
 					
 					body {
-						/* 修复顺序：先设置默认渐变，再用网站背景覆盖它 */
+						/* 修复：添加 overflow: hidden 禁止滚动条出现 */
+						overflow: hidden;
+						
 						background-image: var(--bg-gradient);
 						${网站背景}
 						
@@ -541,10 +543,9 @@ async function subHtml(request) {
 						justify-content: center;
 						align-items: center;
 						transition: background 0.3s ease;
-						overflow-x: hidden;
 					}
 
-					/* --- 连续彩虹拖尾样式 --- */
+					/* 连续彩虹拖尾 */
 					.rainbow-trail {
 						position: absolute;
 						width: 10px;
@@ -563,7 +564,7 @@ async function subHtml(request) {
 						100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
 					}
 					
-					/* --- 容器样式 (清爽卡片风格) --- */
+					/* 容器样式 (保持清爽卡片风) */
 					.container {
 						position: relative;
 						background: var(--card-bg);
@@ -1501,5 +1502,6 @@ export default {
 		}
 	}
 };
+
 
 
