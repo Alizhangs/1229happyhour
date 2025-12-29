@@ -466,9 +466,13 @@ function utf8ToBase64(str) {
 
 async function subHtml(request) {
 	const url = new URL(request.url);
+
+	// 魔法棒光标 (保持不变)
+	const magicWandCursor = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIOaYn+aYnyAtLT4KICA8cGF0aCBkPSJNOCAzLjVMNi41IDdMMyA4LjVMNi41IDEwTCA4IDEzLjVMOS41IDEwTDEzIDguNUw5LjUgN0w4IDMuNVoiIGZpbGw9IiNmZmUaaDciIHN0cm9rZT0iIzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8IS0tIOaJm+afhSAtLT4KICA8cGF0aCBkPSJNMTAuNSAxMC41TDIyIDIyIiBzdHJva2U9IiNhMmQyZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHBhdGggZD0iTTEwLjUgMTAuNUwyMiAyMiIgc3Ryb2tlPSIjMzMzIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWRhc2hhcnJheT0iMiA0Ii8+Cjwvc3ZnPg==`;
+
 	const HTML = `
 			<!DOCTYPE html>
-			<html>
+			<html lang="zh-CN">
 			<head>
 				<meta charset="UTF-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -478,240 +482,242 @@ async function subHtml(request) {
 					:root {
 						--primary-color: #4361ee;
 						--hover-color: #3b4fd3;
-						--bg-color: #f5f6fa;
-						--card-bg: #ffffff;
+						--bg-gradient: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+						--text-color: #333;
+						
+						/* --- 卡片风格变量 (Light Mode) - 改为清爽洁白风格 --- */
+						--card-bg: #ffffff; /* 纯白背景，不再半透明 */
+						--card-border: transparent; /* 移除明显的玻璃边框 */
+						/* 更柔和、明显的投影，营造悬浮卡片感 */
+						--card-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0,0,0,0.05);
+						
+						--input-bg: #f5f7fa; /* 输入框使用实色浅灰，增加层次感 */
+						--input-border: transparent; /* 输入框无边框风格 */
+						
+						--button-bg: #4361ee;
+						--button-text: white;
+						--tooltip-bg: #ffffff;
+					}
+
+					[data-theme="dark"] {
+						--primary-color: #5c7cfa;
+						--hover-color: #4263eb;
+						--bg-gradient: linear-gradient(120deg, #2a2a2a 0%, #333333 100%);
+						--text-color: #f0f0f0;
+						
+						/* --- 卡片风格变量 (Dark Mode) --- */
+						--card-bg: #2d2d2d; /* 深色实体卡片背景 */
+						--card-border: #3d3d3d;
+						--card-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+						
+						--input-bg: #3d3d3d;
+						--input-border: transparent;
+						
+						--button-bg: #5c7cfa;
+						--button-text: #fff;
+						--tooltip-bg: #333333;
 					}
 					
 					* {
 						box-sizing: border-box;
 						margin: 0;
 						padding: 0;
+						cursor: url('${magicWandCursor}') 8 8, auto !important;
 					}
 					
 					body {
 						${网站背景}
+						background-image: var(--bg-gradient);
 						background-size: cover;
 						background-position: center;
 						background-attachment: fixed;
-						background-color: var(--bg-color);
-						font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+						font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
 						line-height: 1.6;
-						color: #333;
+						color: var(--text-color);
 						min-height: 100vh;
 						display: flex;
 						justify-content: center;
 						align-items: center;
+						transition: background 0.3s ease;
+						overflow-x: hidden;
+					}
+
+					/* --- 连续彩虹拖尾样式 (保持不变) --- */
+					.rainbow-trail {
+						position: absolute;
+						width: 10px;
+						height: 10px;
+						border-radius: 50%;
+						pointer-events: none;
+						transform: translate(-50%, -50%);
+						z-index: 9999;
+						mix-blend-mode: screen;
+						animation: trailFade 0.6s linear forwards;
+						box-shadow: 0 0 8px currentColor;
 					}
 					
+					@keyframes trailFade {
+						0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+						100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+					}
+					
+					/* --- 容器样式 (改为清爽卡片风格，大小比例不变) --- */
 					.container {
 						position: relative;
-						background: rgba(255, 255, 255, 0.7);
-						backdrop-filter: blur(10px);
-						-webkit-backdrop-filter: blur(10px); 
-						max-width: 600px;
+						/* 使用新的卡片变量 */
+						background: var(--card-bg);
+						border: 1px solid var(--card-border);
+						box-shadow: var(--card-shadow);
+						
+						/* 重要：移除了 backdrop-filter (毛玻璃模糊效果) */
+						
+						/* 保持原来的大小和比例设置不变 */
+						max-width: 600px; 
 						width: 90%;
 						padding: 2rem;
 						border-radius: 20px;
-						box-shadow: 0 10px 20px rgba(0,0,0,0.05),
-									inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-						transition: transform 0.3s ease;
+						
+						transition: transform 0.3s ease, box-shadow 0.3s ease;
+						z-index: 10;
 					}
 
 					.container:hover {
-						transform: translateY(-5px);
-						box-shadow: 0 15px 30px rgba(0,0,0,0.1),
-									inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+						transform: translateY(-2px);
+						/* 悬浮时加深阴影 */
+						box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0,0,0,0.08);
 					}
 					
 					h1 {
 						text-align: center;
-						color: var(--primary-color);
-						margin-bottom: 2rem;
+						color: var(--text-color);
+						margin-bottom: 1.5rem;
 						font-size: 1.8rem;
+						font-weight: 700;
 					}
 					
 					.input-group {
-						margin-bottom: 1.5rem;
+						margin-bottom: 1.2rem;
 					}
 					
 					label {
 						display: block;
 						margin-bottom: 0.5rem;
-						color: #555;
-						font-weight: 500;
+						color: var(--text-color);
+						font-weight: 600;
+						font-size: 0.95rem;
 					}
 					
+					/* 输入框风格调整为配合卡片 */
 					input {
 						width: 100%;
-						padding: 12px;
-						border: 2px solid rgba(0, 0, 0, 0.15);
+						padding: 12px 15px;
+						background: var(--input-bg);
+						border: 1px solid var(--input-border); /* 无边框或微弱边框 */
+						color: var(--text-color);
 						border-radius: 10px;
 						font-size: 1rem;
 						transition: all 0.3s ease;
-						box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+					}
+
+					input::placeholder {
+						color: var(--text-color);
+						opacity: 0.5;
 					}
 
 					input:focus {
 						outline: none;
+						background: var(--card-bg); /* 聚焦时背景变亮 */
 						border-color: var(--primary-color);
-						box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15),
-									inset 0 2px 4px rgba(0, 0, 0, 0.03);
+						box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
 					}
 					
 					button {
 						width: 100%;
 						padding: 12px;
-						background-color: var(--primary-color);
-						color: white;
+						background: var(--button-bg);
+						color: var(--button-text);
 						border: none;
 						border-radius: 10px;
 						font-size: 1rem;
 						font-weight: 600;
 						cursor: pointer;
 						transition: all 0.3s ease;
-						margin-bottom: 1.5rem;
+						margin-bottom: 1.2rem;
+						margin-top: 0.5rem;
 					}
 					
 					button:hover {
-						background-color: var(--hover-color);
-						transform: translateY(-2px);
-					}
-					
-					button:active {
-						transform: translateY(0);
+						opacity: 0.95;
+						transform: translateY(-1px);
+						box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
 					}
 					
 					#result {
-						background-color: #f8f9fa;
 						font-family: monospace;
-						word-break: break-all;
-					}
-
-					.github-corner svg {
-						fill: var(--primary-color);
-						color: var(--card-bg);
-						position: absolute;
-						top: 0;
-						right: 0;
-						border: 0;
-						width: 80px;
-						height: 80px;
-					}
-
-					.github-corner:hover .octo-arm {
-						animation: octocat-wave 560ms ease-in-out;
-					}
-
-					@keyframes octocat-wave {
-						0%, 100% { transform: rotate(0) }
-						20%, 60% { transform: rotate(-25deg) }
-						40%, 80% { transform: rotate(10deg) }
-					}
-
-					@keyframes rotate {
-						from { transform: rotate(0deg); }
-						to { transform: rotate(360deg); }
+						font-size: 0.9rem;
+						cursor: copy;
 					}
 
 					.logo-title {
-						position: relative;
 						display: flex;
-						justify-content: center;
+						flex-direction: column;
 						align-items: center;
-						margin-bottom: 2rem;
+						justify-content: center;
+						margin-bottom: 1.5rem;
 					}
 
 					.logo-wrapper {
-						position: absolute;
-						left: 0;
-						width: 50px;
-						height: 50px;
+						width: 60px;
+						height: 60px;
+						margin-bottom: 10px;
+						position: relative;
 					}
 
 					.logo-title img {
 						width: 100%;
 						height: 100%;
 						border-radius: 50%;
-						position: relative;
-						z-index: 1;
-						background: var(--card-bg);
-						box-shadow: 0 0 15px rgba(67, 97, 238, 0.1);
+						object-fit: cover;
+						box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 					}
 
-					.logo-border {
-						position: absolute;
-						top: -3px;
-						left: -3px;
-						right: -3px;
-						bottom: -3px;
+					.theme-toggle {
+						position: fixed;
+						top: 20px;
+						right: 20px;
+						width: 40px;
+						height: 40px;
 						border-radius: 50%;
-						animation: rotate 3s linear infinite;
-						background: conic-gradient(
-							from 0deg,
-							transparent 0%,
-							var(--primary-color) 20%,
-							rgba(67, 97, 238, 0.8) 40%,
-							transparent 60%,
-							transparent 100%
-						);
-						box-shadow: 0 0 10px rgba(67, 97, 238, 0.3);
-						filter: blur(0.5px);
+						background: var(--card-bg); /* 使用卡片背景 */
+						border: 1px solid var(--card-border);
+						box-shadow: var(--card-shadow);
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						cursor: pointer;
+						z-index: 100;
+						transition: all 0.3s ease;
 					}
-
-					.logo-border::after {
-						content: '';
-						position: absolute;
-						inset: 3px;
-						border-radius: 50%;
-						background: var(--card-bg);
-					}
-
-					@keyframes rotate {
-						from { transform: rotate(0deg); }
-						to { transform: rotate(360deg); }
-					}
-
-					.logo-title h1 {
-						margin-bottom: 0;
-						text-align: center;
-					}
-
-					@media (max-width: 480px) {
-						.container {
-							padding: 1.5rem;
-						}
-						
-						h1 {
-							font-size: 1.5rem;
-						}
-
-						.github-corner:hover .octo-arm {
-							animation: none;
-						}
-						.github-corner .octo-arm {
-							animation: octocat-wave 560ms ease-in-out;
-						}
-
-						.logo-wrapper {
-							width: 40px;
-							height: 40px;
-						}
+					.theme-toggle:hover { transform: scale(1.1); }
+					
+					.theme-toggle svg {
+						width: 20px;
+						height: 20px;
+						fill: var(--text-color);
 					}
 
 					.beian-info {
 						text-align: center;
-						font-size: 13px;
+						font-size: 12px;
+						color: var(--text-color);
+						opacity: 0.7;
+						margin-top: 15px;
 					}
 
 					.beian-info a {
-						color: var(--primary-color);
+						color: var(--text-color);
 						text-decoration: none;
-						border-bottom: 1px dashed var(--primary-color);
-						padding-bottom: 2px;
-					}
-
-					.beian-info a:hover {
-						border-bottom-style: solid;
+						border-bottom: 1px dashed var(--text-color);
 					}
 
 					#qrcode {
@@ -719,6 +725,12 @@ async function subHtml(request) {
 						justify-content: center;
 						align-items: center;
 						margin-top: 20px;
+						padding: 10px;
+						/* 二维码背景也要适配深色模式 */
+						background: var(--card-bg);
+						border-radius: 10px;
+						display: none;
+						border: 1px solid var(--card-border);
 					}
 
 					.info-icon {
@@ -728,53 +740,44 @@ async function subHtml(request) {
 						width: 18px;
 						height: 18px;
 						border-radius: 50%;
-						background-color: var(--primary-color);
+						background: var(--primary-color);
 						color: white;
 						font-size: 12px;
-						margin-left: 8px;
+						margin-left: 5px;
 						cursor: pointer;
-						font-weight: bold;
-						position: relative;
-						top: -3px;
 					}
 
 					.info-tooltip {
 						display: none;
 						position: fixed;
-						background: white;
-						border: 1px solid var(--primary-color);
-						border-radius: 8px;
+						background: var(--tooltip-bg);
+						color: var(--text-color);
+						border-radius: 12px;
 						padding: 15px;
 						z-index: 1000;
-						box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-						min-width: 200px;
-						max-width: 90vw;
-						width: max-content;
+						box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+						width: 280px;
 						left: 50%;
 						top: 50%;
 						transform: translate(-50%, -50%);
-						margin: 0;
-						line-height: 1.6;
 						font-size: 13px;
-						white-space: normal;
-						word-wrap: break-word;
-						overflow-wrap: break-word;
+						line-height: 1.6;
 					}
 
-					.info-tooltip::before {
-						display: none;
+					@media (max-width: 480px) {
+						.container {
+							padding: 1.5rem;
+							width: 92%;
+						}
 					}
 				</style>
 				<script src="https://cdn.jsdelivr.net/npm/@keeex/qrcodejs-kx@1.0.2/qrcode.min.js"></script>
 			</head>
 			<body>
-				<a href="https://github.com/cmliu/WorkerVless2sub" target="_blank" class="github-corner" aria-label="View source on Github">
-					<svg viewBox="0 0 250 250" aria-hidden="true">
-						<path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
-						<path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
-						<path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
-					</svg>
-				</a>
+				<button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+					<svg id="theme-icon" viewBox="0 0 24 24"></svg>
+				</button>
+
 				<div class="container">
 						<div class="logo-title">
 							${网站头像}
@@ -782,42 +785,88 @@ async function subHtml(request) {
 						</div>
 					<div class="input-group">
 						<label for="link">节点链接</label>
-						<input type="text" id="link" placeholder="请输入 VMess / VLESS / Trojan 链接">
+						<input type="text" id="link" placeholder="请输入 VMess / VLESS / Trojan 链接" autocomplete="off">
 					</div>
 					
 					<button onclick="generateLink()">生成优选订阅</button>
 					
 					<div class="input-group">
-						<div style="display: flex; align-items: center;">
-							<label for="result">优选订阅</label>
-							<div style="position: relative;">
-								<span class="info-icon" onclick="toggleTooltip(event)">!</span>
-								<div class="info-tooltip" id="infoTooltip">
-									<strong>安全提示</strong>：使用优选订阅生成器时，需要您提交 <strong>节点配置信息</strong> 用于生成优选订阅链接。这意味着订阅器的维护者可能会获取到该节点信息。<strong>请自行斟酌使用风险。</strong><br>
-									<br>
-									订阅转换后端：<strong><a href='${subProtocol}://${subConverter}/version' target="_blank" rel="noopener noreferrer">${subProtocol}://${subConverter}</a></strong><br>
-									订阅转换配置文件：<strong><a href='${subConfig}' target="_blank" rel="noopener noreferrer">${subConfig}</a></strong>
+						<div style="display: flex; align-items: center; justify-content: space-between;">
+							<div style="display: flex; align-items: center;">
+								<label for="result" style="margin-bottom: 0;">优选订阅</label>
+								<div style="position: relative;">
+									<span class="info-icon" onclick="toggleTooltip(event)">!</span>
+									<div class="info-tooltip" id="infoTooltip">
+										<h4 style="margin-bottom:8px">安全提示</h4>
+										<p>您的节点信息将发送至后端进行转换。</p>
+										<p style="margin-top:8px; font-size:12px; color:#666">后端地址: ${subConverter}</p>
+									</div>
 								</div>
 							</div>
 						</div>
-						<input type="text" id="result" readonly onclick="copyToClipboard()">
-						<label id="qrcode" style="margin: 15px 10px -15px 10px;"></label>
+						<input type="text" id="result" readonly onclick="copyToClipboard()" placeholder="点击生成后自动出现">
+						<div id="qrcode"></div>
 					</div>
-					<div class="beian-info" style="text-align: center; font-size: 13px;">${网络备案}</div>
+					<div class="beian-info">${网络备案}</div>
 				</div>
 	
 				<script>
+					// 1. 连续彩虹拖尾特效 (保持不变)
+					let hue = 0;
+					let lastX = 0;
+					let lastY = 0;
+
+					document.addEventListener('mousemove', (e) => {
+						const dist = Math.hypot(e.pageX - lastX, e.pageY - lastY);
+						if (dist < 4) return; 
+
+						lastX = e.pageX;
+						lastY = e.pageY;
+
+						const trail = document.createElement('div');
+						trail.className = 'rainbow-trail';
+						trail.style.left = e.pageX + 'px';
+						trail.style.top = e.pageY + 'px';
+						trail.style.backgroundColor = \`hsl(\${hue}, 100%, 75%)\`;
+						trail.style.color = \`hsl(\${hue}, 100%, 75%)\`;
+						hue = (hue + 5) % 360;
+						
+						document.body.appendChild(trail);
+						setTimeout(() => trail.remove(), 600);
+					});
+
+					// 2. 主题切换
+					const themeToggleBtn = document.querySelector('.theme-toggle');
+					const themeIcon = document.getElementById('theme-icon');
+					const sunPath = "M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z";
+					const moonPath = "M9.37 5.51c-.18.64-.28 1.31-.28 2 0 4.08 3.32 7.4 7.4 7.4.69 0 1.36-.1 2-.28A7.39 7.39 0 0112 20c-4.08 0-7.4-3.32-7.4-7.4 0-2.92 1.66-5.47 4.07-6.71a7.39 7.39 0 01.7 7.62z";
+
+					function updateThemeIcon(isDark) {
+						themeIcon.innerHTML = \`<path d="\${isDark ? sunPath : moonPath}"/>\`;
+					}
+
+					function toggleTheme() {
+						const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+						const newTheme = isDark ? 'light' : 'dark';
+						document.documentElement.setAttribute('data-theme', newTheme);
+						localStorage.setItem('theme', newTheme);
+						updateThemeIcon(!isDark);
+					}
+
+					const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+					document.documentElement.setAttribute('data-theme', savedTheme);
+					updateThemeIcon(savedTheme === 'dark');
+
+					// 3. 功能交互
 					function toggleTooltip(event) {
-						event.stopPropagation(); // 阻止事件冒泡
+						event.stopPropagation();
 						const tooltip = document.getElementById('infoTooltip');
 						tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
 					}
 					
-					// 点击页面其他区域关闭提示框
 					document.addEventListener('click', function(event) {
 						const tooltip = document.getElementById('infoTooltip');
 						const infoIcon = document.querySelector('.info-icon');
-						
 						if (!tooltip.contains(event.target) && !infoIcon.contains(event.target)) {
 							tooltip.style.display = 'none';
 						}
@@ -825,28 +874,26 @@ async function subHtml(request) {
 
 					function copyToClipboard() {
 						const resultInput = document.getElementById('result');
-						if (!resultInput.value) {
-							return;
-						}
+						if (!resultInput.value) return;
 						
 						resultInput.select();
 						navigator.clipboard.writeText(resultInput.value).then(() => {
-							const tooltip = document.createElement('div');
-							tooltip.style.position = 'fixed';
-							tooltip.style.left = '50%';
-							tooltip.style.top = '20px';
-							tooltip.style.transform = 'translateX(-50%)';
-							tooltip.style.padding = '8px 16px';
-							tooltip.style.background = '#4361ee';
-							tooltip.style.color = 'white';
-							tooltip.style.borderRadius = '4px';
-							tooltip.style.zIndex = '1000';
-							tooltip.textContent = '已复制到剪贴板';
+							const toast = document.createElement('div');
+							toast.textContent = '已复制到剪贴板 ✅';
+							toast.style.position = 'fixed';
+							toast.style.top = '20px';
+							toast.style.left = '50%';
+							toast.style.transform = 'translateX(-50%)';
+							toast.style.padding = '8px 16px';
+							toast.style.background = 'var(--primary-color)';
+							toast.style.color = 'white';
+							toast.style.borderRadius = '20px';
+							toast.style.zIndex = '2000';
+							toast.style.fontSize = '14px';
 							
-							document.body.appendChild(tooltip);
-							
+							document.body.appendChild(toast);
 							setTimeout(() => {
-								document.body.removeChild(tooltip);
+								document.body.removeChild(toast);
 							}, 2000);
 						}).catch(err => {
 							alert('复制失败，请手动复制');
@@ -856,7 +903,7 @@ async function subHtml(request) {
 					function generateLink() {
 						const link = document.getElementById('link').value;
 						if (!link) {
-							alert('请输入节点链接');
+							alert('请先输入节点链接');
 							return;
 						}
 						
@@ -869,7 +916,6 @@ async function subHtml(request) {
 							if (isVMess){
 								const vmessLink = link.split('vmess://')[1];
 								const vmessJson = JSON.parse(atob(vmessLink));
-								
 								const host = vmessJson.host;
 								const uuid = vmessJson.id;
 								const path = vmessJson.path || '/';
@@ -879,31 +925,28 @@ async function subHtml(request) {
 								const alterId = vmessJson.aid || 0;
 								const security = vmessJson.scy || 'auto';
 								const domain = window.location.hostname;
-								
 								subLink = \`https://\${domain}/sub?host=\${host}&uuid=\${uuid}&path=\${encodeURIComponent(path)}&sni=\${sni}&type=\${type}&alpn=\${encodeURIComponent(alpn)}&alterid=\${alterId}&security=\${security}\`;
 							} else {
 								const uuid = link.split("//")[1].split("@")[0];
 								const search = link.split("?")[1].split("#")[0];
 								const domain = window.location.hostname;
-								
 								subLink = \`https://\${domain}/sub?\${uuidType}=\${uuid}&\${search}\`;
 							}
 							document.getElementById('result').value = subLink;
-	
-							// 更新二维码
+							
 							const qrcodeDiv = document.getElementById('qrcode');
+							qrcodeDiv.style.display = 'flex';
 							qrcodeDiv.innerHTML = '';
 							new QRCode(qrcodeDiv, {
 								text: subLink,
-								width: 220, // 调整宽度
-								height: 220, // 调整高度
-								colorDark: "#4a60ea", // 二维码颜色
-								colorLight: "#ffffff", // 背景颜色
-								correctLevel: QRCode.CorrectLevel.L, // 设置纠错级别
-								scale: 1 // 调整像素颗粒度
+								width: 180, 
+								height: 180, 
+								colorDark: "#000000", 
+								colorLight: "#ffffff", 
+								correctLevel: QRCode.CorrectLevel.L
 							});
 						} catch (error) {
-							alert('链接格式错误，请检查输入');
+							alert('链接格式错误');
 						}
 					}
 				</script>
@@ -1463,3 +1506,4 @@ export default {
 		}
 	}
 };
+
